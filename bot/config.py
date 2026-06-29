@@ -43,10 +43,14 @@ def load_settings() -> Settings:
     # A self-hosted Bot API server lifts the send limit from 50 MB to 2 GB.
     max_upload = (2000 if local_api else 50) * _MB
 
-    # Cookies: explicit path via env, else a cookies.txt next to the project.
+    # Cookies for YouTube. Order: explicit YTDLP_COOKIES path, then Render's
+    # secret-file mount, then a cookies.txt in the project root.
     cookies = os.getenv("YTDLP_COOKIES", "").strip()
-    if not cookies and os.path.exists("cookies.txt"):
-        cookies = "cookies.txt"
+    if not cookies:
+        for candidate in ("/etc/secrets/cookies.txt", "cookies.txt"):
+            if os.path.exists(candidate):
+                cookies = candidate
+                break
 
     return Settings(
         bot_token=token,
