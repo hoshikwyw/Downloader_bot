@@ -27,7 +27,10 @@ _YDL_OPTS = {
 # here so the handler can surface them to Telegram (easier than Render logs).
 DEBUG_LINES: list[str] = []
 
-_DIAG_KEYWORDS = ("pot", "bgutil", "visitor", "player_client", "innertube", "getpot")
+_DIAG_KEYWORDS = (
+    "pot", "po token", "token", "bgutil", "visitor", "player_client",
+    "innertube", "getpot", "sign in", "provider",
+)
 
 
 class _DiagLogger:
