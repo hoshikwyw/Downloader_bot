@@ -53,11 +53,19 @@ async def main() -> None:
     logger.info("Starting @%s (id=%s) ...", me.username, me.id)
 
     # Keep-alive endpoint for hosted web services (no-op locally).
-    await start_health_server()
+    runner = await start_health_server()
 
-    # Drop any updates that piled up while the bot was offline.
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    try:
+        # Drop any updates that piled up while the bot was offline.
+        await bot.delete_webhook(drop_pending_updates=True)
+        await dp.start_polling(bot)
+    finally:
+        # If polling stops (e.g. SIGTERM during a redeploy), tear down the
+        # health server so the process actually EXITS instead of lingering as a
+        # "healthy but not polling" zombie that Render keeps alive. Exiting lets
+        # Render start a single fresh instance.
+        if runner is not None:
+            await runner.cleanup()
 
 
 if __name__ == "__main__":
