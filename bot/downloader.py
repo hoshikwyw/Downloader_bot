@@ -10,7 +10,7 @@ from pathlib import Path
 
 from yt_dlp import YoutubeDL
 
-from bot.config import settings
+from bot.config import apply_debug, settings
 
 DOWNLOAD_DIR = Path("downloads")
 DOWNLOAD_DIR.mkdir(exist_ok=True)
@@ -93,6 +93,7 @@ def _download_audio(url: str, bitrate: str = "192") -> AudioResult:
         opts["ffmpeg_location"] = FFMPEG_DIR
     if settings.cookies_file:
         opts["cookiefile"] = settings.cookies_file
+    apply_debug(opts)
     with YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=True)
 
@@ -185,6 +186,7 @@ def _download_video(url: str, height: int) -> VideoResult:
         base["ffmpeg_location"] = FFMPEG_DIR
     if settings.cookies_file:
         base["cookiefile"] = settings.cookies_file
+    apply_debug(base)
 
     # 1. Probe metadata + estimate size before spending bandwidth.
     with YoutubeDL(base) as ydl:

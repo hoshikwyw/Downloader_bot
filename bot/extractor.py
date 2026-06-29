@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from yt_dlp import YoutubeDL
 
-from bot.config import settings
+from bot.config import apply_debug, settings
 
 # Resolutions we'll offer as buttons, best-first, filtered to what's available.
 PREFERRED_HEIGHTS = [2160, 1440, 1080, 720, 480, 360]
@@ -40,6 +40,7 @@ def _extract(url: str) -> VideoInfo:
     opts = dict(_YDL_OPTS)
     if settings.cookies_file:
         opts["cookiefile"] = settings.cookies_file
+    apply_debug(opts)
     with YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=False)
 
