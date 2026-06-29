@@ -1,0 +1,23 @@
+# Render blueprint — deploy the bot as a free Docker web service.
+# In Render: New + -> Blueprint -> point at this repo. Then set the secret env
+# vars (BOT_TOKEN, ALLOWED_USER_IDS) in the dashboard.
+#
+# NOTE: Render free web services sleep after ~15 min idle. Add an external
+# uptime pinger (e.g. cron-job.org / UptimeRobot) hitting <your-url>/health
+# every ~10 min to keep the long-polling bot awake.
+
+services:
+  - type: web
+    name: downloader-bot
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        sync: false          # set in dashboard (secret)
+      - key: ALLOWED_USER_IDS
+        sync: false          # set in dashboard
+      # Optional: paste cookies to dodge YouTube's "confirm you're not a bot".
+      # - key: YTDLP_COOKIES
+      #   sync: false

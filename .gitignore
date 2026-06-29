@@ -1,0 +1,17 @@
+# Secrets
+.env
+cookies.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Downloaded media (temp working files)
+downloads/
+
+# OS
+.DS_Store
+Thumbs.db
