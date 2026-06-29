@@ -31,7 +31,6 @@ class Settings:
     local_api_base: str        # e.g. "http://localhost:8081"; empty = Telegram cloud
     max_upload_bytes: int      # 50 MB on cloud, 2 GB on a local Bot API server
     cookies_file: str          # optional yt-dlp cookies.txt (helps when YouTube bot-checks a server IP)
-    ytdlp_debug: bool          # YTDLP_DEBUG=1 -> verbose yt-dlp logs (diagnose PO-token / extraction)
 
 
 def load_settings() -> Settings:
@@ -72,15 +71,7 @@ def load_settings() -> Settings:
         local_api_base=local_api,
         max_upload_bytes=max_upload,
         cookies_file=cookies,
-        ytdlp_debug=bool(os.getenv("YTDLP_DEBUG", "").strip()),
     )
-
-
-def apply_debug(opts: dict) -> dict:
-    """Flip yt-dlp into verbose mode when YTDLP_DEBUG is set (in place)."""
-    if settings.ytdlp_debug:
-        opts.update(quiet=False, no_warnings=False, verbose=True)
-    return opts
 
 
 settings = load_settings()
