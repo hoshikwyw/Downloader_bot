@@ -23,6 +23,33 @@ _YDL_OPTS = {
     "noplaylist": True,
 }
 
+# When YTDLP_DEBUG is on, the last extraction's PO-token-relevant log lines land
+# here so the handler can surface them to Telegram (easier than Render logs).
+DEBUG_LINES: list[str] = []
+
+_DIAG_KEYWORDS = ("pot", "bgutil", "visitor", "player_client", "innertube", "getpot")
+
+
+class _DiagLogger:
+    """Captures yt-dlp log lines that mention PO-token / client diagnostics."""
+
+    def _keep(self, msg: str, prefix: str = "") -> None:
+        low = msg.lower()
+        if any(k in low for k in _DIAG_KEYWORDS):
+            DEBUG_LINES.append(prefix + msg)
+
+    def debug(self, msg: str) -> None:
+        self._keep(msg)
+
+    def info(self, msg: str) -> None:
+        self._keep(msg)
+
+    def warning(self, msg: str) -> None:
+        self._keep(msg, "WARN: ")
+
+    def error(self, msg: str) -> None:  # keep all errors short
+        DEBUG_LINES.append("ERR: " + msg)
+
 
 @dataclass
 class VideoInfo:
@@ -41,6 +68,9 @@ def _extract(url: str) -> VideoInfo:
     if settings.cookies_file:
         opts["cookiefile"] = settings.cookies_file
     apply_debug(opts)
+    if settings.ytdlp_debug:
+        DEBUG_LINES.clear()
+        opts["logger"] = _DiagLogger()
     with YoutubeDL(opts) as ydl:
         info = ydl.extract_info(url, download=False)
 

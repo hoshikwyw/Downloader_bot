@@ -21,7 +21,7 @@ from bot.downloader import (
     download_video,
     ffmpeg_available,
 )
-from bot.extractor import VideoInfo, fetch_info, menu_heights, url_cache
+from bot.extractor import DEBUG_LINES, VideoInfo, fetch_info, menu_heights, url_cache
 from bot.filters import IsAllowed
 
 URL_RE = re.compile(r"https?://\S+")
@@ -94,9 +94,13 @@ async def on_link(message: Message, url: str) -> None:
     try:
         info = await fetch_info(url)
     except Exception as e:  # yt-dlp raises various extractor errors
+        diag = ""
+        if DEBUG_LINES:
+            joined = "\n".join(DEBUG_LINES[-10:])
+            diag = f"\n\n<b>diag:</b>\n<code>{html.escape(joined[:900])}</code>"
         await status.edit_text(
             "❌ Couldn't read that link.\n"
-            f"<code>{html.escape(str(e))[:300]}</code>"
+            f"<code>{html.escape(str(e))[:250]}</code>{diag}"
         )
         return
 
