@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import os
+import shutil
+import tempfile
 from dataclasses import dataclass
 
 from dotenv import load_dotenv
@@ -51,6 +53,17 @@ def load_settings() -> Settings:
             if os.path.exists(candidate):
                 cookies = candidate
                 break
+
+    # yt-dlp writes the cookie jar back to this file after each request. Render
+    # mounts secret files read-only, so work on a writable copy in the temp dir.
+    if cookies and os.path.exists(cookies):
+        try:
+            writable = os.path.join(tempfile.gettempdir(), "yt_cookies.txt")
+            if os.path.abspath(cookies) != os.path.abspath(writable):
+                shutil.copyfile(cookies, writable)
+                cookies = writable
+        except OSError:
+            pass  # fall back to the original path
 
     return Settings(
         bot_token=token,
